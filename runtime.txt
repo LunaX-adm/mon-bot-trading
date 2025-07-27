@@ -1,1 +1,78 @@
-python-3.10.9
+#!/usr/bin/env python3
+"""
+🚀 LunaX Trading Bot - Point d'entrée principal
+Bot de trading crypto autonome niveau hedge fund
+"""
+
+import asyncio
+import sys
+import os
+import signal
+from pathlib import Path
+
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
+
+from bot.main import LunaXBot
+from bot.utils.logger import setup_logger
+from bot.utils.config import load_config
+
+def signal_handler(signum, frame):
+    """Gestionnaire de signaux pour arrêt propre"""
+    print("\n🛑 Signal d'arrêt reçu. Arrêt en cours...")
+    sys.exit(0)
+
+async def main():
+    """Point d'entrée principal"""
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
+    print("""
+    ╔══════════════════════════════════════════════════════════════╗
+    ║                    🤖 LUNAX TRADING BOT 🤖                   ║
+    ║                                                              ║
+    ║              🚀 AI Hedge Fund Level Trading 🚀               ║
+    ║                                                              ║
+    ║  📊 Multi-Agent IA  |  🎯 Ultra-Filtered Signals  |  ⚡ 24/7 ║
+    ║                                                              ║
+    ║              Créé par LunaX-adm | Version 1.0.0             ║
+    ╚══════════════════════════════════════════════════════════════╝
+    """)
+    
+    try:
+        print("⚙️ Chargement de la configuration...")
+        config = load_config()
+        
+        log_file = config.get('logging', {}).get('file', 'data/logs/lunax.log')
+        log_level = config.get('logging', {}).get('level', 'INFO')
+        logger = setup_logger("LunaX", log_level, log_file)
+        
+        logger.info("🚀 Démarrage de LunaX Trading Bot")
+        
+        print("🤖 Initialisation des agents IA...")
+        bot = LunaXBot()
+        
+        print("📡 Connexion aux APIs...")
+        
+        print("✅ LunaX Bot prêt - Démarrage du trading autonome...")
+        print("📊 Mode: Scan automatique 24h/24")
+        print("🎯 Objectif: 1 trade ultra-filtré par jour")
+        print("⚠️ Appuyez sur Ctrl+C pour arrêter\n")
+        
+        await bot.start()
+        
+    except KeyboardInterrupt:
+        print("\n🛑 Arrêt demandé par l'utilisateur")
+        logger.info("🛑 LunaX Bot arrêté par l'utilisateur")
+    except Exception as e:
+        print(f"\n❌ Erreur fatale: {e}")
+        logger.error(f"❌ Erreur fatale: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    if sys.version_info < (3, 8):
+        print("❌ Python 3.8+ requis")
+        sys.exit(1)
+    
+    asyncio.run(main())
